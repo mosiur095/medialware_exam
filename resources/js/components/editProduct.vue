@@ -5,7 +5,12 @@
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="">Productdddd Name</label>
+                            <label for="">Product ID</label>
+                            <input type="text" v-model="product_id" placeholder="Product ID" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="">Product Name</label>
                             <input type="text" v-model="product_name" placeholder="Product Name" class="form-control">
                         </div>
                         <div class="form-group">
@@ -74,14 +79,8 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="variant_price in product_variant_price">
-
-
-                                    <span v-for="product_variants in product_variants">
-                                        <span v-if="product_variants.id ==variant_price.product_variant_one">{{ product_variants.variant }}/</span>
-                                        <span v-if="product_variants.id ==variant_price.product_variant_two">{{ product_variants.variant }}/</span>
-                                        <span v-if="product_variants.id ==variant_price.product_variant_three">{{ product_variants.variant }}/</span>
-                                    </span>
+                                <tr v-for="variant_price in product_variant_prices">
+                                    <td>{{ variant_price.title }}</td>
                                     <td>
                                         <input type="text" class="form-control" v-model="variant_price.price">
                                     </td>
@@ -97,7 +96,7 @@
             </div>
         </div>
 
-        <button @click="saveProduct" type="submit" class="btn btn-lg btn-primary">Save</button>
+        <button @click="updateProduct" type="submit" class="btn btn-lg btn-primary">Save</button>
         <button type="button" class="btn btn-secondary btn-lg">Cancel</button>
     </section>
 </template>
@@ -132,6 +131,7 @@ export default {
     },
     data() {
         return {
+            product_id: '',
             product_name: '',
             product_sku: '',
             description: '',
@@ -152,6 +152,8 @@ export default {
         }
     },
     methods: {
+
+
         // it will push a new object into product variant
         newVariant() {
             let all_variants = this.variants.map(el => el.id)
@@ -160,15 +162,18 @@ export default {
             // console.log(available_variants)
 
             this.product_variant.push({
-                option: available_variants[0],
+                option: available_variants[10],
                 tags: []
             })
         },
 
+
+
+
         // check the variant and render all the combination
         checkVariant() {
             let tags = [];
-            this.product_variant_prices = [];
+            //this.product_variant_prices = [];
             this.product_variant.filter((item) => {
                 tags.push(item.tags);
             })
@@ -181,6 +186,9 @@ export default {
                 })
             })
         },
+
+
+
 
         // combination algorithm
         getCombn(arr, pre) {
@@ -195,9 +203,14 @@ export default {
             return ans;
         },
 
+
+
+
+
         // store product into database
-        saveProduct() {
+        updateProduct() {
             let product = {
+                id: this.product_id,
                 title: this.product_name,
                 sku: this.product_sku,
                 description: this.description,
@@ -205,9 +218,7 @@ export default {
                 product_variant: this.product_variant,
                 product_variant_prices: this.product_variant_prices
             }
-
-
-            axios.post('/product', product).then(response => {
+            axios.put('/product/'+this.product_id, product).then(response => {
                 console.log(response.data);
             }).catch(error => {
                 console.log(error);
@@ -222,9 +233,12 @@ export default {
         console.log('Component mounted.')
         console.log(this.product_variant_price);
         console.log(this.product_variants);
+        this.product_variant_prices = this.product_variant_price;        
+        this.product_id = this.products[0].id;
         this.product_name = this.products[0].title;
         this.product_sku = this.products[0].sku;
         this.description = this.products[0].description;
+        console.log(this.product_variant_prices.length);
     }
 }
 </script>

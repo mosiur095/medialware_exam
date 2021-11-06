@@ -2241,7 +2241,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 
 
@@ -2270,6 +2269,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
+      product_id: '',
       product_name: '',
       product_sku: '',
       description: '',
@@ -2305,7 +2305,7 @@ __webpack_require__.r(__webpack_exports__);
       }); // console.log(available_variants)
 
       this.product_variant.push({
-        option: available_variants[0],
+        option: available_variants[10],
         tags: []
       });
     },
@@ -2313,8 +2313,8 @@ __webpack_require__.r(__webpack_exports__);
     checkVariant: function checkVariant() {
       var _this = this;
 
-      var tags = [];
-      this.product_variant_prices = [];
+      var tags = []; //this.product_variant_prices = [];
+
       this.product_variant.filter(function (item) {
         tags.push(item.tags);
       });
@@ -2341,8 +2341,9 @@ __webpack_require__.r(__webpack_exports__);
       return ans;
     },
     // store product into database
-    saveProduct: function saveProduct() {
+    updateProduct: function updateProduct() {
       var product = {
+        id: this.product_id,
         title: this.product_name,
         sku: this.product_sku,
         description: this.description,
@@ -2350,7 +2351,7 @@ __webpack_require__.r(__webpack_exports__);
         product_variant: this.product_variant,
         product_variant_prices: this.product_variant_prices
       };
-      axios.post('/product', product).then(function (response) {
+      axios.put('/product/' + this.product_id, product).then(function (response) {
         console.log(response.data);
       })["catch"](function (error) {
         console.log(error);
@@ -2362,9 +2363,12 @@ __webpack_require__.r(__webpack_exports__);
     console.log('Component mounted.');
     console.log(this.product_variant_price);
     console.log(this.product_variants);
+    this.product_variant_prices = this.product_variant_price;
+    this.product_id = this.products[0].id;
     this.product_name = this.products[0].title;
     this.product_sku = this.products[0].sku;
     this.description = this.products[0].description;
+    console.log(this.product_variant_prices.length);
   }
 });
 
@@ -51115,7 +51119,33 @@ var render = function() {
         _c("div", { staticClass: "card shadow mb-4" }, [
           _c("div", { staticClass: "card-body" }, [
             _c("div", { staticClass: "form-group" }, [
-              _c("label", { attrs: { for: "" } }, [_vm._v("Productdddd Name")]),
+              _c("label", { attrs: { for: "" } }, [_vm._v("Product ID")]),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.product_id,
+                    expression: "product_id"
+                  }
+                ],
+                staticClass: "form-control",
+                attrs: { type: "text", placeholder: "Product ID" },
+                domProps: { value: _vm.product_id },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.product_id = $event.target.value
+                  }
+                }
+              })
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "form-group" }, [
+              _c("label", { attrs: { for: "" } }, [_vm._v("Product Name")]),
               _vm._v(" "),
               _c("input", {
                 directives: [
@@ -51341,95 +51371,66 @@ var render = function() {
                 _vm._v(" "),
                 _c(
                   "tbody",
-                  _vm._l(_vm.product_variant_price, function(variant_price) {
-                    return _c(
-                      "tr",
-                      [
-                        _vm._l(_vm.product_variants, function(
-                          product_variants
-                        ) {
-                          return _c("span", [
-                            product_variants.id ==
-                            variant_price.product_variant_one
-                              ? _c("span", [
-                                  _vm._v(_vm._s(product_variants.variant) + "/")
-                                ])
-                              : _vm._e(),
-                            _vm._v(" "),
-                            product_variants.id ==
-                            variant_price.product_variant_two
-                              ? _c("span", [
-                                  _vm._v(_vm._s(product_variants.variant) + "/")
-                                ])
-                              : _vm._e(),
-                            _vm._v(" "),
-                            product_variants.id ==
-                            variant_price.product_variant_three
-                              ? _c("span", [
-                                  _vm._v(_vm._s(product_variants.variant) + "/")
-                                ])
-                              : _vm._e()
-                          ])
-                        }),
-                        _vm._v(" "),
-                        _c("td", [
-                          _c("input", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: variant_price.price,
-                                expression: "variant_price.price"
-                              }
-                            ],
-                            staticClass: "form-control",
-                            attrs: { type: "text" },
-                            domProps: { value: variant_price.price },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.$set(
-                                  variant_price,
-                                  "price",
-                                  $event.target.value
-                                )
-                              }
+                  _vm._l(_vm.product_variant_prices, function(variant_price) {
+                    return _c("tr", [
+                      _c("td", [_vm._v(_vm._s(variant_price.title))]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: variant_price.price,
+                              expression: "variant_price.price"
                             }
-                          })
-                        ]),
-                        _vm._v(" "),
-                        _c("td", [
-                          _c("input", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: variant_price.stock,
-                                expression: "variant_price.stock"
+                          ],
+                          staticClass: "form-control",
+                          attrs: { type: "text" },
+                          domProps: { value: variant_price.price },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
                               }
-                            ],
-                            staticClass: "form-control",
-                            attrs: { type: "text" },
-                            domProps: { value: variant_price.stock },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.$set(
-                                  variant_price,
-                                  "stock",
-                                  $event.target.value
-                                )
-                              }
+                              _vm.$set(
+                                variant_price,
+                                "price",
+                                $event.target.value
+                              )
                             }
-                          })
-                        ])
-                      ],
-                      2
-                    )
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: variant_price.stock,
+                              expression: "variant_price.stock"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: { type: "text" },
+                          domProps: { value: variant_price.stock },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                variant_price,
+                                "stock",
+                                $event.target.value
+                              )
+                            }
+                          }
+                        })
+                      ])
+                    ])
                   }),
                   0
                 )
@@ -51445,7 +51446,7 @@ var render = function() {
       {
         staticClass: "btn btn-lg btn-primary",
         attrs: { type: "submit" },
-        on: { click: _vm.saveProduct }
+        on: { click: _vm.updateProduct }
       },
       [_vm._v("Save")]
     ),

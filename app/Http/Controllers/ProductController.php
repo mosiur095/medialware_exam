@@ -160,17 +160,59 @@ class ProductController extends Controller
         $variants = Variant::all();
         $products = DB::table('products')
         ->select('*')
-        ->where('id', '=' , request()->segment(2))
+        ->where('id', '=' , $product->id)
         ->get();
-        $product_variant_prices = DB::table('product_variant_prices')
+
+        $product_variant_price = DB::table('product_variant_prices')
         ->select('*')
-        ->where('product_id', '=' , request()->segment(2))
-        ->get();
+        ->where('product_id', $product->id)->get()->toArray();
+
+        $product_variant_prices = array();
+        foreach ($product_variant_price as $key => $value) {
+            $product_variant_one = null;
+            $product_variant_two = null;
+            $product_variant_three = null;
+
+            if($value->product_variant_one != null){
+                $product_variants = DB::table('product_variants')
+                    ->select('id','variant')
+                    ->where([['product_id',$product->id],['id',$value->product_variant_one]])
+                    ->first();
+                $product_variant_one = $product_variants->variant;
+            }
+
+            if($value->product_variant_two != null){
+                $product_variants = DB::table('product_variants')
+                    ->select('id','variant')
+                    ->where([['product_id',$product->id],['id',$value->product_variant_two]])
+                    ->first();
+                $product_variant_two = "/".$product_variants->variant;
+            }
+
+            if($value->product_variant_three != null){
+                $product_variants = DB::table('product_variants')
+                    ->select('id','variant')
+                    ->where([['product_id',$product->id],['id',$value->product_variant_three]])
+                    ->first();
+                $product_variant_three = "/".$product_variants->variant;
+            }
+            $title = $product_variant_one.$product_variant_two.$product_variant_three;
+            $price = $value->price;
+            $stock = $value->stock;
+            array_push($product_variant_prices , ['title'=>$title,'price'=>$price,'stock'=>$stock]);
+        }
+        // var_dump($variants);
+
+        // echo "<pre>";
+        // print_r($object);
+        // exit();
+        
 
         $product_variants = DB::table('product_variants')
         ->select('id','variant')
         ->where('product_id','=', request()->segment(2))
         ->get();
+
         return view('products.edit', compact('variants','products','product_variant_prices','product_variants'));
     }
 
@@ -183,8 +225,9 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-       echo "update_is running";
-   }
+        $product_id = $product->id;
+        echo $product_id;
+    }
 
     /**
      * Remove the specified resource from storage.
