@@ -9,6 +9,6 @@
         <h1 class="h3 mb-0 text-gray-800">Edit Product</h1>
     </div>
     <div id="app">
-        <edit-product :variants="{{ $variants }}" :products="{{ $products }}" :product_variants="{{$product_variants}}" :product_variant_price="{{json_encode($product_variant_prices)}}">Loading</edit-product>
+        <edit-product :variants="{{ $variants }}" :products="{{ $products }}" :product_variants="{{json_encode($productvariants)}}" :product_variant_price="{{json_encode($product_variant_prices)}}">Loading</edit-product>
     </div>
 @endsection

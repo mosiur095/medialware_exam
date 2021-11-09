@@ -2313,8 +2313,8 @@ __webpack_require__.r(__webpack_exports__);
     checkVariant: function checkVariant() {
       var _this = this;
 
-      var tags = []; //this.product_variant_prices = [];
-
+      var tags = [];
+      this.product_variant_prices = [];
       this.product_variant.filter(function (item) {
         tags.push(item.tags);
       });
@@ -2363,6 +2363,7 @@ __webpack_require__.r(__webpack_exports__);
     console.log('Component mounted.');
     console.log(this.product_variant_price);
     console.log(this.product_variants);
+    this.product_variant = this.product_variants;
     this.product_variant_prices = this.product_variant_price;
     this.product_id = this.products[0].id;
     this.product_name = this.products[0].title;

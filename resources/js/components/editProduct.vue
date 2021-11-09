@@ -173,7 +173,7 @@ export default {
         // check the variant and render all the combination
         checkVariant() {
             let tags = [];
-            //this.product_variant_prices = [];
+            this.product_variant_prices = [];
             this.product_variant.filter((item) => {
                 tags.push(item.tags);
             })
@@ -233,6 +233,7 @@ export default {
         console.log('Component mounted.')
         console.log(this.product_variant_price);
         console.log(this.product_variants);
+        this.product_variant = this.product_variants;
         this.product_variant_prices = this.product_variant_price;        
         this.product_id = this.products[0].id;
         this.product_name = this.products[0].title;
