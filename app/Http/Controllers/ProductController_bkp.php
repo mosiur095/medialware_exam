@@ -226,25 +226,10 @@ class ProductController extends Controller
         $description = $request->description;
         $sku = $request->sku;
         $product_image = $request->product_image;
-        $product_variant = $request->product_variant;   
+        $product_variant = $request->product_variant;
         $product_variant_prices = $request->product_variant_prices;
-        $affected = DB::table('products')->where('id', $product_id)->update(['title' => $title,'sku' => $sku,'description' => $description]);
-
-        if($affected){
-            $old_product_varience = DB::table('product_variants')->select('*')->where('product_id',$product_id)->count();
-            foreach ($product_variant as $key => $variant) {
-                $varient_id = $variant['option'];
-                $varient_items = $variant['tags'];
-                foreach ($varient_items as $key => $value) {
-                    $response = DB::table('product_variants')
-                    ->updateOrInsert(
-                        ['variant' => $value, 'variant_id' => $varient_id,'product_id'=>$product_id],
-                        ['variant' => $value, 'variant_id' => $varient_id,'product_id'=>$product_id]
-                    );
-
-                } 
-            }                
-        }
+        exit();
+        
     }
 
     /**
