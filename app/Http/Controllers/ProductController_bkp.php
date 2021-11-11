@@ -226,80 +226,10 @@ class ProductController extends Controller
         $description = $request->description;
         $sku = $request->sku;
         $product_image = $request->product_image;
-        $product_variant = $request->product_variant;   
+        $product_variant = $request->product_variant;
         $product_variant_prices = $request->product_variant_prices;
-<<<<<<< HEAD
-        $affected = DB::table('products')->where('id', $product_id)->update(['title' => $title,'sku' => $sku,'description' => $description]);        
-        DB::table('product_variants')->where('product_id', $product_id)->delete();
-        foreach ($product_variant as $key => $variant) {
-            $varient_id = $variant['option'];
-            $varient_items = $variant['tags'];
-            foreach ($varient_items as $key => $value) {
-                $response = DB::table('product_variants')
-                ->updateOrInsert(
-                    ['variant' => $value, 'variant_id' => $varient_id,'product_id'=>$product_id],
-                    ['variant' => $value, 'variant_id' => $varient_id,'product_id'=>$product_id]
-                );
-            } 
-        }
-        DB::table('product_variant_prices')->where('product_id', $product_id)->delete();
-        $product_variant_array = array();
-        foreach ($product_variant_prices as $key => $variant_price) {
-            $product_varience = explode("/", $variant_price['title']);
-            $product_variant_one  =null;
-            $product_variant_two  =null;
-            $product_variant_three =null;
-
-            foreach ($product_varience as $key => $varience) {
-                $variantid = DB::table('product_variants')->select('id')->where([['variant','=',$varience],['product_id', '=' ,$product_id]])->get()->toArray();
-                foreach ($variantid as $key => $ids) {
-                    $product_variant_array[] = $ids->id;
-                }
-            }
-            $price = $variant_price['price'];
-            $stock = $variant_price['stock'];
-
-            if (array_key_exists(0, $product_variant_array)){
-                $product_variant_one  = $product_variant_array[0];
-            }
-            if (array_key_exists(1, $product_variant_array)){
-                $product_variant_two = $product_variant_array[1];
-            }
-
-            if (array_key_exists(2, $product_variant_array)){
-                $product_variant_three = $product_variant_array[2];
-            }
-
-            DB::table('product_variant_prices')->insert(
-                [
-                    'product_variant_one'=>$product_variant_one ,
-                    'product_variant_two'=>$product_variant_two ,
-                    'product_variant_three'=>$product_variant_three,
-                    'price'=>$price,
-                    'stock'=>$stock,
-                    'product_id'=>$product_id
-                ]
-            );
-            unset($product_variant_array);
-=======
-        $affected = DB::table('products')->where('id', $product_id)->update(['title' => $title,'sku' => $sku,'description' => $description]);
-
-        if($affected){
-            $old_product_varience = DB::table('product_variants')->select('*')->where('product_id',$product_id)->count();
-            foreach ($product_variant as $key => $variant) {
-                $varient_id = $variant['option'];
-                $varient_items = $variant['tags'];
-                foreach ($varient_items as $key => $value) {
-                    $response = DB::table('product_variants')
-                    ->updateOrInsert(
-                        ['variant' => $value, 'variant_id' => $varient_id,'product_id'=>$product_id],
-                        ['variant' => $value, 'variant_id' => $varient_id,'product_id'=>$product_id]
-                    );
-
-                } 
-            }                
->>>>>>> 1b74d3b7ff44941e88cacd8f3d387d5b567d5db5
-        }
+        exit();
+        
     }
 
     /**
