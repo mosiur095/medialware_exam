@@ -2109,11 +2109,10 @@ __webpack_require__.r(__webpack_exports__);
         product_variant_prices: this.product_variant_prices
       };
       axios.post('/product', product).then(function (response) {
-        console.log(response.data);
+        window.location.href = '/product';
       })["catch"](function (error) {
         console.log(error);
       });
-      console.log(product);
     }
   },
   mounted: function mounted() {
@@ -2305,7 +2304,7 @@ __webpack_require__.r(__webpack_exports__);
       }); // console.log(available_variants)
 
       this.product_variant.push({
-        option: available_variants[10],
+        option: available_variants[0],
         tags: []
       });
     },
@@ -2318,13 +2317,53 @@ __webpack_require__.r(__webpack_exports__);
       this.product_variant.filter(function (item) {
         tags.push(item.tags);
       });
-      this.getCombn(tags).forEach(function (item) {
-        _this.product_variant_prices.push({
-          title: item,
-          price: 0,
-          stock: 0
+      var total_combination = this.getCombn(tags).length;
+      var variant_price_length = this.product_variant_prices.length;
+
+      if (total_combination >= variant_price_length) {
+        this.getCombn(tags).forEach(function (item) {
+          var exist = null;
+          var not_exist = null;
+          var tag = item.slice(0, -1); //console.log(tag);               
+
+          var length = _this.product_variant_prices.length;
+
+          for (var i = 0; i < length; i++) {
+            var status = _this.product_variant_prices[i]['title'].includes(tag);
+
+            if (status == true) {
+              exist += 1;
+            }
+
+            if (status == false) {
+              not_exist += 1;
+            }
+          }
+
+          if (exist == null) {
+            _this.product_variant_prices.push({
+              title: tag,
+              price: 0,
+              stock: 0
+            });
+          }
         });
-      });
+      }
+
+      if (total_combination < variant_price_length) {
+        var length = this.product_variant_prices.length;
+
+        for (var i = length - 1; i >= 0; i--) {
+          var title = this.product_variant_prices[i]['title'] + '/';
+          var index = Object.values(this.getCombn(tags)).indexOf(title); //console.log(title);
+          //console.log(index);
+
+          if (index == -1) {
+            var varient_ptice_index = this.product_variant_prices.indexOf(this.product_variant_prices[i]);
+            this.product_variant_prices.splice(varient_ptice_index, 1);
+          }
+        }
+      }
     },
     // combination algorithm
     getCombn: function getCombn(arr, pre) {
@@ -2352,23 +2391,21 @@ __webpack_require__.r(__webpack_exports__);
         product_variant_prices: this.product_variant_prices
       };
       axios.put('/product/' + this.product_id, product).then(function (response) {
-        console.log(response.data);
-      })["catch"](function (error) {
-        console.log(error);
+        window.location.href = '/product';
+      })["catch"](function (error) {//console.log(error);
       });
-      console.log(product);
     }
   },
   mounted: function mounted() {
-    console.log('Component mounted.');
-    console.log(this.product_variant_price);
-    console.log(this.product_variants);
+    //console.log('Component mounted.')
+    //console.log(this.product_variant_price);
+    //console.log(this.product_variants);
+    this.product_variant = this.product_variants;
     this.product_variant_prices = this.product_variant_price;
     this.product_id = this.products[0].id;
     this.product_name = this.products[0].title;
     this.product_sku = this.products[0].sku;
-    this.description = this.products[0].description;
-    console.log(this.product_variant_prices.length);
+    this.description = this.products[0].description; //console.log(this.product_variant_prices.length);
   }
 });
 
@@ -64037,8 +64074,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! F:\Xampp\htdocs\mediasware_exam\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! F:\Xampp\htdocs\mediasware_exam\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! D:\xampp\htdocs\medialware_exam\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! D:\xampp\htdocs\medialware_exam\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

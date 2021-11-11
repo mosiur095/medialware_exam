@@ -187,15 +187,11 @@ export default {
                 product_variant: this.product_variant,
                 product_variant_prices: this.product_variant_prices
             }
-
-
             axios.post('/product', product).then(response => {
-                console.log(response.data);
+                window.location.href = '/product';
             }).catch(error => {
                 console.log(error);
             })
-
-            console.log(product);
         }
 
 

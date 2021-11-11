@@ -152,17 +152,14 @@ export default {
         }
     },
     methods: {
-
-
         // it will push a new object into product variant
         newVariant() {
             let all_variants = this.variants.map(el => el.id)
             let selected_variants = this.product_variant.map(el => el.option);
             let available_variants = all_variants.filter(entry1 => !selected_variants.some(entry2 => entry1 == entry2))
             // console.log(available_variants)
-
             this.product_variant.push({
-                option: available_variants[10],
+                option: available_variants[0],
                 tags: []
             })
         },
@@ -171,24 +168,56 @@ export default {
 
 
         // check the variant and render all the combination
-        checkVariant() {
+        checkVariant() {   
             let tags = [];
             //this.product_variant_prices = [];
             this.product_variant.filter((item) => {
                 tags.push(item.tags);
             })
 
-            this.getCombn(tags).forEach(item => {
-                this.product_variant_prices.push({
-                    title: item,
-                    price: 0,
-                    stock: 0
+            var total_combination = this.getCombn(tags).length;
+            var variant_price_length = this.product_variant_prices.length;
+            if(total_combination >= variant_price_length){   
+                this.getCombn(tags).forEach(item => {
+                    var exist = null;
+                    var not_exist = null;
+                    const tag = item.slice(0, -1);
+                    //console.log(tag);               
+                    var length = this.product_variant_prices.length;
+                    for(var i= 0;i<length; i++){
+                        let status = this.product_variant_prices[i]['title'].includes(tag);
+                        if(status == true){
+                            exist += 1;
+                        }
+                        if(status == false){
+                            not_exist += 1;
+                        }                    
+                    }
+                    if(exist == null){
+                        this.product_variant_prices.push({
+                            title: tag,
+                            price: 0,
+                            stock: 0
+                        })
+                    }
                 })
-            })
+            }
+
+
+            if(total_combination < variant_price_length){
+                var length = this.product_variant_prices.length;
+                for(var i= length-1; i >= 0; i--){
+                    let title = this.product_variant_prices[i]['title']+'/';
+                    let index = Object.values(this.getCombn(tags)).indexOf(title);
+                    //console.log(title);
+                    //console.log(index);
+                    if(index == -1){
+                        let varient_ptice_index = (this.product_variant_prices).indexOf(this.product_variant_prices[i]);
+                        this.product_variant_prices.splice(varient_ptice_index,1);
+                    }
+                }
+            }
         },
-
-
-
 
         // combination algorithm
         getCombn(arr, pre) {
@@ -219,26 +248,23 @@ export default {
                 product_variant_prices: this.product_variant_prices
             }
             axios.put('/product/'+this.product_id, product).then(response => {
-                console.log(response.data);
+                window.location.href = '/product';
             }).catch(error => {
-                console.log(error);
+                //console.log(error);
             })
-
-            console.log(product);
         }
-
-
     },
     mounted() {
-        console.log('Component mounted.')
-        console.log(this.product_variant_price);
-        console.log(this.product_variants);
+        //console.log('Component mounted.')
+        //console.log(this.product_variant_price);
+        //console.log(this.product_variants);
+        this.product_variant = this.product_variants; 
         this.product_variant_prices = this.product_variant_price;        
         this.product_id = this.products[0].id;
         this.product_name = this.products[0].title;
         this.product_sku = this.products[0].sku;
         this.description = this.products[0].description;
-        console.log(this.product_variant_prices.length);
+        //console.log(this.product_variant_prices.length);
     }
 }
 </script>

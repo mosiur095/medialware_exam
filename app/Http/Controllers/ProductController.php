@@ -94,10 +94,14 @@ class ProductController extends Controller
         $product_variant_array = array();
         foreach ($product_variant_prices as $key => $variant_price) {
             $product_varience = explode("/", $variant_price['title']);
+            $product_variant_one  =null;
+            $product_variant_two  =null;
+            $product_variant_three =null;
+
             foreach ($product_varience as $key => $varience) {
                 $variantid = DB::table('product_variants')->select('id')->where([['variant','=',$varience],['product_id', '=' ,$product_id]])->get()->toArray();
                 foreach ($variantid as $key => $ids) {
-                    array_push($product_variant_array,$ids->id);
+                    $product_variant_array[] = $ids->id;
                 }
             }
             $price = $variant_price['price'];
@@ -106,21 +110,12 @@ class ProductController extends Controller
             if (array_key_exists(0, $product_variant_array)){
                 $product_variant_one  = $product_variant_array[0];
             }
-            else{
-                $product_variant_one  =null;
-            }
             if (array_key_exists(1, $product_variant_array)){
                 $product_variant_two = $product_variant_array[1];
-            }
-            else{
-                $product_variant_two  =null;
             }
 
             if (array_key_exists(2, $product_variant_array)){
                 $product_variant_three = $product_variant_array[2];
-            }
-            else{
-                $product_variant_three =null;
             }
 
             DB::table('product_variant_prices')->insert(
@@ -133,6 +128,7 @@ class ProductController extends Controller
                     'product_id'=>$product_id
                 ]
             );
+            unset($product_variant_array);
         }
     }
 
@@ -175,25 +171,25 @@ class ProductController extends Controller
 
             if($value->product_variant_one != null){
                 $product_variants = DB::table('product_variants')
-                    ->select('id','variant')
-                    ->where([['product_id',$product->id],['id',$value->product_variant_one]])
-                    ->first();
+                ->select('id','variant')
+                ->where([['product_id',$product->id],['id',$value->product_variant_one]])
+                ->first();
                 $product_variant_one = $product_variants->variant;
             }
 
             if($value->product_variant_two != null){
                 $product_variants = DB::table('product_variants')
-                    ->select('id','variant')
-                    ->where([['product_id',$product->id],['id',$value->product_variant_two]])
-                    ->first();
+                ->select('id','variant')
+                ->where([['product_id',$product->id],['id',$value->product_variant_two]])
+                ->first();
                 $product_variant_two = "/".$product_variants->variant;
             }
 
             if($value->product_variant_three != null){
                 $product_variants = DB::table('product_variants')
-                    ->select('id','variant')
-                    ->where([['product_id',$product->id],['id',$value->product_variant_three]])
-                    ->first();
+                ->select('id','variant')
+                ->where([['product_id',$product->id],['id',$value->product_variant_three]])
+                ->first();
                 $product_variant_three = "/".$product_variants->variant;
             }
             $title = $product_variant_one.$product_variant_two.$product_variant_three;
@@ -201,19 +197,19 @@ class ProductController extends Controller
             $stock = $value->stock;
             array_push($product_variant_prices , ['title'=>$title,'price'=>$price,'stock'=>$stock]);
         }
-        // var_dump($variants);
 
-        // echo "<pre>";
-        // print_r($object);
-        // exit();
-        
-
-        $product_variants = DB::table('product_variants')
-        ->select('id','variant')
-        ->where('product_id','=', request()->segment(2))
+        $product_variant = DB::table('product_variants')
+        ->select('id','variant','variant_id')
+        ->where('product_id','=', $product->id)
         ->get();
 
-        return view('products.edit', compact('variants','products','product_variant_prices','product_variants'));
+        foreach ($product_variant->pluck('variant_id')->unique() as $value) {
+            $productvariants[]=[
+                'option' => $value,
+                'tags' => $product_variant->where('variant_id',$value)->pluck('variant')->toArray()
+            ];
+        }
+        return view('products.edit', compact('variants','products','product_variant_prices','productvariants'));
     }
 
     /**
@@ -226,7 +222,65 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $product_id = $product->id;
-        echo $product_id;
+        $title = $request->title;
+        $description = $request->description;
+        $sku = $request->sku;
+        $product_image = $request->product_image;
+        $product_variant = $request->product_variant;   
+        $product_variant_prices = $request->product_variant_prices;
+        $affected = DB::table('products')->where('id', $product_id)->update(['title' => $title,'sku' => $sku,'description' => $description]);        
+        DB::table('product_variants')->where('product_id', $product_id)->delete();
+        foreach ($product_variant as $key => $variant) {
+            $varient_id = $variant['option'];
+            $varient_items = $variant['tags'];
+            foreach ($varient_items as $key => $value) {
+                $response = DB::table('product_variants')
+                ->updateOrInsert(
+                    ['variant' => $value, 'variant_id' => $varient_id,'product_id'=>$product_id],
+                    ['variant' => $value, 'variant_id' => $varient_id,'product_id'=>$product_id]
+                );
+            } 
+        }
+        DB::table('product_variant_prices')->where('product_id', $product_id)->delete();
+        $product_variant_array = array();
+        foreach ($product_variant_prices as $key => $variant_price) {
+            $product_varience = explode("/", $variant_price['title']);
+            $product_variant_one  =null;
+            $product_variant_two  =null;
+            $product_variant_three =null;
+
+            foreach ($product_varience as $key => $varience) {
+                $variantid = DB::table('product_variants')->select('id')->where([['variant','=',$varience],['product_id', '=' ,$product_id]])->get()->toArray();
+                foreach ($variantid as $key => $ids) {
+                    $product_variant_array[] = $ids->id;
+                }
+            }
+            $price = $variant_price['price'];
+            $stock = $variant_price['stock'];
+
+            if (array_key_exists(0, $product_variant_array)){
+                $product_variant_one  = $product_variant_array[0];
+            }
+            if (array_key_exists(1, $product_variant_array)){
+                $product_variant_two = $product_variant_array[1];
+            }
+
+            if (array_key_exists(2, $product_variant_array)){
+                $product_variant_three = $product_variant_array[2];
+            }
+
+            DB::table('product_variant_prices')->insert(
+                [
+                    'product_variant_one'=>$product_variant_one ,
+                    'product_variant_two'=>$product_variant_two ,
+                    'product_variant_three'=>$product_variant_three,
+                    'price'=>$price,
+                    'stock'=>$stock,
+                    'product_id'=>$product_id
+                ]
+            );
+            unset($product_variant_array);
+        }
     }
 
     /**
